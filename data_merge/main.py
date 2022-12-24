@@ -1,42 +1,33 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[1]:
-
-
 import pandas as pd
 import glob
 from cleaning_functions import *
+import warnings
+warnings.filterwarnings("ignore")
 
+# Paths
+# check if this is the same path used for raw_analysis
+#path = r'C:/Users/jantu/Downloads/stock_system-221209/raw_stock-221206/*'
+raw_combined = 'raw_combined.csv'
 
-# In[16]:
-
+path = r'E:\Dropbox\Pessoal\Python\trabalho\Upwork\New-stock-system\data\originals/*'
 
 # Get a list of files to read from the path
-path = r'E:\Dropbox\Pessoal\Python\trabalho\Upwork\New-stock-system\data\originals\*'
 files = glob.glob(path)
 
-
-# In[18]:
-
-
-# This function gets the file path, the supplier_code (a key in the dictionary below)
-# and the parameters of the dictionary below for each key. It checks the file extension and then uses the 
-# appropriate pandas function
-
+list1 = []
 
 def read_file(file, supplier_code, header, special_operation):
-        #Check if file is xls or xlsx
+        # Check if file is xls or xlsx
     if "xlsx" in file or "xls" in file.lower():
         df = pd.read_excel(
             io = Fr"{file}", 
             header = file_columns[supplier_code]["header"], 
             usecols = file_columns[supplier_code]["columns"]
-            )[file_columns[supplier_code]["columns"]] #To maintain parsed columns orders
-                #if the dataframe require more special operaions like adding blank columns or removing un wanted raws
+            )[file_columns[supplier_code]["columns"]] # To maintain parsed columns orders if the dataframe require more special operations like adding blank columns or removing unwanted rows
+        list1.append(file_columns[supplier_code])
         if file_columns[supplier_code]["special_operation"]:
             df = file_columns[supplier_code]["special_operation"](df)
-                
+
         df.columns = ["Manufacturer", "Partnumber", "Quantity", "Price"]
 
         df["supplier"] = supplier_code
@@ -48,9 +39,9 @@ def read_file(file, supplier_code, header, special_operation):
             header = file_columns[supplier_code]["header"], 
             usecols = file_columns[supplier_code]["columns"],
             sep = ";|\|", 
-            encoding = "ISO-8859-1", #This encoding is important to work with most of the files
-            engine = "python" #This engine to accept regex at sep parameter for csv with variety of delimeters
-            )[file_columns[supplier_code]["columns"]] #To maintain parsed columns orders
+            encoding = "ISO-8859-1", # This encoding is important to work with most of the files
+            engine = "python" # This engine is to accept regex at sep parameter for csv with variety of delimiters
+            )[file_columns[supplier_code]["columns"]] # To maintain parsed columns orders
 
         if file_columns[supplier_code]["special_operation"]:
             df = file_columns[supplier_code]["special_operation"](df)
@@ -63,14 +54,6 @@ def read_file(file, supplier_code, header, special_operation):
         print("unkown file formate: ", file)
 
     return df
-
-
-# In[19]:
-
-
-# Dictionary to pass to the read function. For each file it needs the header (where the column name is), the columns 
-# names and if any special operations is needed (the cleaning_functions functions)
-
 
 file_columns = {
     "metal":    {    "header": 0, 
@@ -106,8 +89,8 @@ file_columns = {
                     "columns": ["Fabricante", "Código Fábrica", "Disponibilidade", "Preço"],
                     "special_operation": None
                 },
-    "ima":{            "header": 0, 
-                    "columns": ["Código XML", "Estoque"],
+    "ima":{            "header": 3, 
+                    "columns": ["Código","Preço C/Imp SP", "Múltiplos"],
                     "special_operation": ima_process
                 },
     "compel":{        "header": 0, 
@@ -119,20 +102,16 @@ file_columns = {
                     "special_operation": None
                 },
     "real":{        "header": 0, 
-                    "columns": ["NOME_FANTASIA", "COD_FABRICANTE", "QTDE_SPLESTE", "PRECO_SPLESTE"],
-                    "special_operation": None
+                    "columns": ["CODIGO_INTERNO", "COD_FABRICANTE","NOME_FANTASIA","PRODUTO",
+                                "QTDE_EMB","UNIDADE_MEDIDA","QTDE_SPNORTE","PRECO_SPNORTE",
+                                "QTDE_ABC","PRECO_ABC","QTDE_SPLESTE","PRECO_SPLESTE"],
+                    "special_operation": real_process
                 },
     "jahu":{        "header": 0, 
-                    "columns": ['Marca','Cód.Fabricante', 'Preco','Disponivel'],
+                    "columns": ['Marca','Cód.Fabricante', 'Preco','Disponivel',"Produto"],
                     "special_operation": jahu_process
                 },
 }
-
-
-# In[20]:
-
-
-# Starts with a empty list that is populated with every data from the files list using the read_file function
 
 all_df = []
 for file in files:
@@ -145,14 +124,15 @@ for file in files:
                 supplier_code, 
                 header = file_columns[supplier_code]["header"], 
                 special_operation = file_columns[supplier_code]["special_operation"]))
-            
-            
-#saves the combined dataframe
-pd.concat(all_df, ignore_index = True).to_csv(r'E:\Dropbox\Pessoal\Python\trabalho\Upwork\New-stock-system\dados\merged_database\combined.csv')
+#print(list1)
+#print("file_columns_keys :", file_columns_keys)
 
+pd.concat(all_df, ignore_index = True).to_csv("../data/merged_database/combined.csv")
 
-# In[ ]:
+# save the output file in third_etl in the raw_stock folder, naming it with real_third_etl
+pd.concat(all_df, ignore_index = True).to_csv("../data/raw_analysis/real_third_etl.csv")
 
-
+#Save with timestamp
+pd.concat(all_df, ignore_index = True).to_csv('../data/text_output/real_third_etl_{}.txt'.format(pd.datetime.now().strftime("%Y-%m-%d %H-%M-%S")))
 
 
