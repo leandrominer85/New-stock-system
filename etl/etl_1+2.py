@@ -183,26 +183,42 @@ df.Manufacturer = df.Manufacturer.str.replace(" ","")
 # In[22]:
 
 
+#Removing white space in key
+df.key = df.key.str.strip()
+df.key = df.key.str.replace(" ","")
+
+
+# In[23]:
+
+
+#Removing white space in pointer
+df.Partnumber = df.pointer.str.strip()
+df.Partnumber = df.pointer.str.replace(" ","")
+
+
+# In[24]:
+
+
 # Fill Nans with 0
 df = df.replace("", 0)
 df = df.replace("nan",0)
 df = df.fillna(0)
 
 
-# In[23]:
+# In[25]:
 
 
 # Removing empty Manufactures
 df = df[df.Manufacturer != 0]
 
 
-# In[24]:
+# In[26]:
 
 
 df.to_csv('../data/etl/first_etl.csv')
 
 
-# In[25]:
+# In[27]:
 
 
 #Save with timestamp
@@ -211,7 +227,7 @@ df.to_csv('../data/text_output/first_etl{}.txt'.format(pd.datetime.now().strftim
 
 # ## Second ETL (for each step i show the size of the modifield dataframe)
 
-# In[26]:
+# In[28]:
 
 
 #parts having a quantity equal to 0
@@ -219,19 +235,19 @@ df.to_csv('../data/text_output/first_etl{}.txt'.format(pd.datetime.now().strftim
 df = df[df['Quantity'] !=0]
 
 
-# In[27]:
+# In[29]:
 
 
 df.info()
 
 
-# In[28]:
+# In[30]:
 
 
 df.supplier.value_counts()
 
 
-# In[29]:
+# In[31]:
 
 
 #parts having the quantity blank
@@ -239,38 +255,24 @@ df.supplier.value_counts()
 df = df[df['Quantity'].isna() == False]
 
 
-# In[30]:
-
-
-df.info()
-
-
-# In[31]:
-
-
-df.supplier.value_counts()
-
-
 # In[32]:
 
 
-#parts having a negative quantity
-
-df = df[df['Quantity'] > 0]
+df.info()
 
 
 # In[33]:
 
 
-df.info()
+df.supplier.value_counts()
 
 
 # In[34]:
 
 
-#parts having a price equal to 0
+#parts having a negative quantity
 
-df = df[df['Price'] != 0.]
+df = df[df['Quantity'] > 0]
 
 
 # In[35]:
@@ -282,8 +284,9 @@ df.info()
 # In[36]:
 
 
-#parts having the price blank
-df = df[df['Price'].isna() == False]
+#parts having a price equal to 0
+
+df = df[df['Price'] != 0.]
 
 
 # In[37]:
@@ -295,8 +298,8 @@ df.info()
 # In[38]:
 
 
-#parts having the manufacturer blank
-df = df[df['Manufacturer'].isna() == False]
+#parts having the price blank
+df = df[df['Price'].isna() == False]
 
 
 # In[39]:
@@ -308,8 +311,8 @@ df.info()
 # In[40]:
 
 
-# parts have the partnumber blank
-df = df[df['Partnumber'].isna() == False]
+#parts having the manufacturer blank
+df = df[df['Manufacturer'].isna() == False]
 
 
 # In[41]:
@@ -321,11 +324,24 @@ df.info()
 # In[42]:
 
 
+# parts have the partnumber blank
+df = df[df['Partnumber'].isna() == False]
+
+
+# In[43]:
+
+
+df.info()
+
+
+# In[44]:
+
+
 # Read the synonyms data
 syn = pd.read_excel("../data/synonyms/manufacturers_synonyms.xlsx")
 
 
-# In[43]:
+# In[45]:
 
 
 # for each entrie replace the values with the syn dataframe:
@@ -339,20 +355,20 @@ for n,i in enumerate(syn.name_to_be_replaced):
 
 
 
-# In[44]:
+# In[46]:
 
 
 df.to_csv('../data/etl/second_etl.csv')
 
 
-# In[45]:
+# In[47]:
 
 
 #Save with timestamp
 df.to_csv('../data/text_output/second_etl{}.txt'.format(pd.datetime.now().strftime("%Y-%m-%d %H-%M-%S")))
 
 
-# In[46]:
+# In[48]:
 
 
 # save in excel
