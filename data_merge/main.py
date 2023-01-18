@@ -1,21 +1,42 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[ ]:
+
+
+
+
+
+# In[1]:
+
+
 import pandas as pd
 import glob
 from cleaning_functions import *
-import warnings
-warnings.filterwarnings("ignore")
+
+
+# In[2]:
+
 
 # Paths
 # check if this is the same path used for raw_analysis
-#path = r'C:/Users/jantu/Downloads/stock_system-221209/raw_stock-221206/*'
-raw_combined = 'raw_combined.csv'
+path = '../data/originals/*'
 
-path = r'E:\Dropbox\Pessoal\Python\trabalho\Upwork\New-stock-system\data\originals/*'
+
+# In[3]:
+
 
 # Get a list of files to read from the path
 files = glob.glob(path)
 
-list1 = []
 
+# - Get the file path, the supplier_code (a key in the dictionary below)
+# and the parameters of the dictionary below for each key. It checks the file extension and then uses the appropriate pandas function.
+
+# In[4]:
+
+
+list1 = []
 def read_file(file, supplier_code, header, special_operation):
         # Check if file is xls or xlsx
     if "xlsx" in file or "xls" in file.lower():
@@ -54,6 +75,14 @@ def read_file(file, supplier_code, header, special_operation):
         print("unkown file formate: ", file)
 
     return df
+
+
+# Dictionary to pass to the read function. For each file, it needs the header (where the column name is), the columns
+# names and if any special operations is needed (the cleaning_functions functions)
+
+# In[5]:
+
+
 
 file_columns = {
     "metal":    {    "header": 0, 
@@ -95,7 +124,7 @@ file_columns = {
                 },
     "compel":{        "header": 0, 
                     "columns": ["FABRICANTE", "COD FABRICA", "DISPONIBILIDADE", "PREÇO"],
-                    "special_operation": compel_process
+                    "special_operation": None
                 },
     "rufato":{        "header": None, 
                     "columns": [5, 4, 3, 2],
@@ -113,6 +142,12 @@ file_columns = {
                 },
 }
 
+
+# Starts with an empty list that is populated with every data from the files list using the read_file function
+
+# In[6]:
+
+
 all_df = []
 for file in files:
     file_columns_keys = list(file_columns.keys())
@@ -124,15 +159,30 @@ for file in files:
                 supplier_code, 
                 header = file_columns[supplier_code]["header"], 
                 special_operation = file_columns[supplier_code]["special_operation"]))
-#print(list1)
-#print("file_columns_keys :", file_columns_keys)
+
+
+# In[10]:
+
 
 pd.concat(all_df, ignore_index = True).to_csv("../data/merged_database/combined.csv")
+
+
+# In[8]:
+
 
 # save the output file in third_etl in the raw_stock folder, naming it with real_third_etl
 pd.concat(all_df, ignore_index = True).to_csv("../data/raw_analysis/real_third_etl.csv")
 
+
+# In[9]:
+
+
 #Save with timestamp
 pd.concat(all_df, ignore_index = True).to_csv('../data/text_output/real_third_etl_{}.txt'.format(pd.datetime.now().strftime("%Y-%m-%d %H-%M-%S")))
+
+
+# In[ ]:
+
+
 
 

@@ -40,7 +40,7 @@ estoque = estoque[["supplier", "days_late"]]
 for s in estoque.supplier:
     if np.where(estoque[estoque.supplier == s].days_late > 10,0,99) == 0:
         df2 = df[df.supplier == s]
-        df2.Price = 0
+        df2.Quantity = 0
         df[df.supplier == s] = df2
         
 
@@ -48,12 +48,70 @@ for s in estoque.supplier:
 # In[6]:
 
 
-df.to_csv('../data/etl/estoque.csv')
+#Changing the type to str
+df.Partnumber = df.Partnumber.astype(str)
 
 
 # In[7]:
 
 
+# Creating a temp DF to retain the desired data
+temp = df[df.Manufacturer =='monroeaxios']
+
+
+# In[8]:
+
+
+#Reading the data with the partnumbers
+df2 = pd.read_excel('../data/synonyms/manufacturers_pn_list.xlsx', dtype='object')
+df2 = df2.astype(str)
+
+
+# In[9]:
+
+
+#Changing to lower and assign to a list
+monroe = [x.lower() for x in list(df2.monroe_pn)]
+
+
+# In[10]:
+
+
+#Changing to lower and replacing the float point and assign to a list
+axios = [x.lower() for x in list(df2.axios_pn)]
+axios = [x.rstrip('.0') for x in axios ]
+
+
+# In[11]:
+
+
+# Changing the values in the temp using the lists
+temp.loc[temp.Partnumber.isin(monroe), 'Manufacturer'] = 'monroe'
+temp.loc[temp.Partnumber.isin(axios), 'Manufacturer'] = 'axios'
+
+
+# In[12]:
+
+
+# Updating the original DF
+df.update(temp)
+
+
+# In[13]:
+
+
+df.to_csv('../data/etl/estoque.csv')
+
+
+# In[14]:
+
+
 #Save with timestamp
 df.to_csv('../data/text_output/estoque{}.txt'.format(pd.datetime.now().strftime("%Y-%m-%d %H-%M-%S")))
+
+
+# In[ ]:
+
+
+
 

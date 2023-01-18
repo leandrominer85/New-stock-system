@@ -1,5 +1,21 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
 import pandas as pd
 import numpy as np
+
+
+# In[ ]:
+
 
 # Functions to initially process the dataframes that need some work:
 '''
@@ -7,14 +23,17 @@ suppliers that are manufacturers: mte, ima
 added hard coded "bosch" for Polipecas 
 '''
 
+
+# In[ ]:
+
+
 def mte_process(df):
         
     # Remove first row as it is empty
     df.drop(    index=df.index[0], 
                 axis=0, 
                 inplace=True)
-    df["COD MTE"] =df["COD MTE"].str.replace("R","")
-
+   
     df.rename({'COD MTE' : 'Partnumber', 'PREÇO' : 'Price' ,
                'QTD. ESTOQUE':'Quantity'}, axis=1, inplace= True)
     
@@ -24,12 +43,20 @@ def mte_process(df):
     
     return df
 
+
+# In[ ]:
+
+
 def sueyasu_process(df):
     # Remove first row (unwanted data)
     df.drop(    index=df.index[0], 
                 axis=0, 
                 inplace=True)
     return df
+
+
+# In[ ]:
+
 
 def polipecas_process(df): 
     ###WHAT IF THERE IS ZERO IN THE BEGINNING OF PART NUMBER
@@ -43,9 +70,12 @@ def polipecas_process(df):
     df.insert(    loc=2, 
                 column='new col2', 
                 value=['' for i in range(df.shape[0])])
-    # Insert zeros in the dataframe Price col
-    df.Price = 0
+
     return df
+
+
+# In[ ]:
+
 
 def ima_process(df):
     
@@ -57,12 +87,20 @@ def ima_process(df):
 
     return df
 
+
+# In[ ]:
+
+
 def compel_process(df):
     # Remove first row (unwanted data)
     df.drop(    index=df.index[:2], 
                 axis=0, 
                 inplace=True)
     return df
+
+
+# In[ ]:
+
 
 def jahu_process(df):
     
@@ -79,6 +117,10 @@ def jahu_process(df):
     
     
     return df
+
+
+# In[1]:
+
 
 def real_process(df):
     
@@ -189,5 +231,10 @@ def real_process(df):
     
     
     return df
+
+
+# In[ ]:
+
+
 
 
